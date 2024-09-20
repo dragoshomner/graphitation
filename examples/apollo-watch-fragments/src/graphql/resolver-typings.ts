@@ -46,6 +46,7 @@ export type Me = Node & NodeWithTodos & {
 export type MeTodosArgs = {
   after?: Maybe<Scalars['String']>;
   first: Scalars['Int'];
+  showCompletedOnly?: Maybe<Scalars['Boolean']>;
   sortBy?: Maybe<SortByInput>;
 };
 
@@ -78,6 +79,7 @@ export type NodeWithTodos = {
 export type NodeWithTodosTodosArgs = {
   after?: Maybe<Scalars['String']>;
   first: Scalars['Int'];
+  showCompletedOnly?: Maybe<Scalars['Boolean']>;
   sortBy?: Maybe<SortByInput>;
 };
 

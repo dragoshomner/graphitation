@@ -11,7 +11,7 @@ import { Todo } from "./Todo";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { TodoListPaginationQuery } from "./__generated__/TodoListPaginationQuery.graphql";
 
-const TodoList: React.FC<{ node: TodoList_nodeFragment$key }> = ({
+export const TodoList: React.FC<{ node: TodoList_nodeFragment$key }> = ({
   node: nodeRef,
 }) => {
   const [order, setOrder] = React.useState<"ASC" | "DESC">("ASC");
@@ -34,8 +34,12 @@ const TodoList: React.FC<{ node: TodoList_nodeFragment$key }> = ({
         }
       ) {
         __typename
-        todos(first: $count, after: $after, sortBy: $sortBy)
-          @connection(key: "TodosList_todos") {
+        todos(
+          first: $count
+          after: $after
+          sortBy: $sortBy
+          showCompletedOnly: $showCompletedOnly
+        ) @connection(key: "TodosList_todos") {
           edges {
             node {
               id
@@ -95,8 +99,8 @@ const TodoList: React.FC<{ node: TodoList_nodeFragment$key }> = ({
 
 (TodoList as any).whyDidYouRender = true;
 
-const MemoizedTodoList = React.memo(
-  TodoList,
-  shallowCompareFragmentReferences("node"),
-);
-export { MemoizedTodoList as TodoList };
+// const MemoizedTodoList = React.memo(
+//   TodoList,
+//   shallowCompareFragmentReferences("node"),
+// );
+// export { MemoizedTodoList as TodoList };
