@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect } from "react";
 import { unstable_batchedUpdates } from "react-dom";
 import invariant from "invariant";
 import { useCompiledFragment } from "./useCompiledFragment";
@@ -9,6 +9,7 @@ import { useOverridenOrDefaultApolloClient } from "../../useOverridenOrDefaultAp
 import type { CompiledArtefactModule } from "@graphitation/apollo-react-relay-duct-tape-compiler";
 import type { FragmentReference } from "./types";
 import type { FetchPolicy } from "../../types";
+import { useForceUpdate } from "./useForceUpdate";
 
 export interface Disposable {
   dispose(): void;
@@ -60,16 +61,24 @@ export function useCompiledRefetchableFragment(
   );
 
   const client = useOverridenOrDefaultApolloClient();
+  const updatedThroughRefetch = useRef(false);
 
+  const forceUpdate = useForceUpdate();
   // We use state for this, so that...
-  const [
-    fragmentReferenceWithOwnVariables,
-    setFragmentReferenceWithOwnVariables,
-  ] = useState(fragmentReference);
+  const fragmentReferenceWithOwnVariables = useRef(fragmentReference);
   // ...this gets invoked again with updated variables.
+
+  if (!isEqual(fragmentReferenceWithOwnVariables.current, fragmentReference)) {
+    if (updatedThroughRefetch.current) {
+      updatedThroughRefetch.current = false;
+    } else {
+      fragmentReferenceWithOwnVariables.current = fragmentReference;
+    }
+  }
+
   const data = useCompiledFragment(
     documents,
-    fragmentReferenceWithOwnVariables,
+    fragmentReferenceWithOwnVariables.current,
   );
 
   const disposable = useRef<Disposable>();
@@ -118,7 +127,7 @@ export function useCompiledRefetchableFragment(
                 // No need to trigger an update to propagate new variables if they don't actually change.
                 if (
                   !isEqual(
-                    fragmentReferenceWithOwnVariables.__fragments,
+                    fragmentReferenceWithOwnVariables.current.__fragments,
                     nextVariables,
                   )
                 ) {
@@ -129,7 +138,10 @@ export function useCompiledRefetchableFragment(
                   if (fragmentReference.id !== undefined) {
                     nextFragmentReference.id = fragmentReference.id;
                   }
-                  setFragmentReferenceWithOwnVariables(nextFragmentReference);
+                  updatedThroughRefetch.current = true;
+                  fragmentReferenceWithOwnVariables.current =
+                    nextFragmentReference;
+                  forceUpdate();
                 }
               }
             });
