@@ -24,12 +24,22 @@ input SortByInput {
 
 interface NodeWithTodos implements Node {
   id: ID!
-  todos(first: Int!, after: String, sortBy: SortByInput): TodosConnection!
+  todos(
+    first: Int!
+    after: String
+    sortBy: SortByInput
+    showCompletedOnly: Boolean
+  ): TodosConnection!
 }
 
 type Me implements Node & NodeWithTodos {
   id: ID!
-  todos(first: Int!, after: String, sortBy: SortByInput): TodosConnection!
+  todos(
+    first: Int!
+    after: String
+    sortBy: SortByInput
+    showCompletedOnly: Boolean
+  ): TodosConnection!
 }
 
 type PageInfo {

@@ -102,12 +102,16 @@ const resolvers: Resolvers<Context> = {
         // loading indicator.
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-      const todos = [...context.db.getTodos()].sort((a, b) => {
-        if (args?.sortBy?.sortDirection === "DESC") {
-          return b.description.localeCompare(a.description);
-        }
-        return a.description.localeCompare(b.description);
-      });
+      const todos = [...context.db.getTodos()]
+        .sort((a, b) => {
+          if (args?.sortBy?.sortDirection === "DESC") {
+            return b.description.localeCompare(a.description);
+          }
+          return a.description.localeCompare(b.description);
+        })
+        .filter((todo) => {
+          return !args.showCompletedOnly || !todo.isCompleted;
+        });
       return connectionFromArray(todos, args);
     },
   },

@@ -10,11 +10,15 @@ import { useAddTodoMutation } from "./useAddTodoMutation";
 import { AppQuery as AppQueryType } from "./__generated__/AppQuery.graphql";
 
 const App: React.FC = () => {
+  const [showCompletedOnly, setShowCompletedOnly] = React.useState(false);
   const addTodo = useAddTodoMutation();
 
   const result = useLazyLoadQuery<AppQueryType>(
     graphql`
-      query AppQuery($includeSomeOtherField: Boolean!) {
+      query AppQuery(
+        $includeSomeOtherField: Boolean!
+        $showCompletedOnly: Boolean!
+      ) {
         me {
           todoStats: todos(first: 0) {
             id
@@ -25,7 +29,7 @@ const App: React.FC = () => {
         }
       }
     `,
-    { includeSomeOtherField: false },
+    { includeSomeOtherField: false, showCompletedOnly },
   );
   if (result.error) {
     throw result.error;
@@ -38,6 +42,9 @@ const App: React.FC = () => {
     <section className="todoapp">
       <header className="header">
         <h1>todos</h1>
+        <button onClick={() => setShowCompletedOnly(!showCompletedOnly)}>
+          {showCompletedOnly ? "Show all" : "Filter completed only"}
+        </button>
         <TodoTextInput
           className="new-todo"
           placeholder="What needs to be done?"
